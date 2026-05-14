@@ -15,8 +15,8 @@ final class AppendResponse
     public static function fromArray(array $data): self
     {
         return new self(
-            ok: $data['ok'] ?? false,
-            errorCode: $data['error_code'] ?? null,
+            ok: (bool) ($data['ok'] ?? $data['success'] ?? false),
+            errorCode: $data['error_code'] ?? $data['errorCode'] ?? null,
         );
     }
 }

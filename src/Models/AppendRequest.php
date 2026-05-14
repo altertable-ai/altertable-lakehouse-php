@@ -25,13 +25,12 @@ final class AppendRequest
     public function toArray(): array
     {
         if ($this->single !== null) {
-            return ['Single' => $this->single->toArray()];
+            return $this->single->toArray();
         }
-        return [
-            'Batch' => array_map(
-                static fn (AppendPayload $p) => $p->toArray(),
-                $this->batch ?? [],
-            ),
-        ];
+
+        return array_map(
+            static fn (AppendPayload $p) => $p->toArray(),
+            $this->batch ?? [],
+        );
     }
 }

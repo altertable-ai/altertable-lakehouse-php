@@ -17,10 +17,10 @@ final class QueryMetadata
     public static function fromArray(array $data): self
     {
         return new self(
-            queryId: $data['query_id'] ?? '',
-            status: $data['status'] ?? 'unknown',
-            totalRows: $data['total_rows'] ?? null,
-            elapsedMs: $data['elapsed_ms'] ?? null,
+            queryId: (string) ($data['query_id'] ?? $data['uuid'] ?? $data['id'] ?? ''),
+            status: (string) ($data['status'] ?? 'unknown'),
+            totalRows: $data['total_rows'] ?? $data['row_count'] ?? null,
+            elapsedMs: $data['elapsed_ms'] ?? $data['duration_ms'] ?? null,
         );
     }
 }

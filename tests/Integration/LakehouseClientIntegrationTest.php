@@ -29,12 +29,12 @@ final class LakehouseClientIntegrationTest extends TestCase
 
         $baseUrl = 'http://localhost:' . $port;
 
-        self::$client = new LakehouseClient(
-            LakehouseConfig::builder()
-                ->withCredentials('testuser', 'testpass')
-                ->withBaseUrl($baseUrl)
-                ->build(),
-        );
+        $config = LakehouseConfig::builder()
+            ->withCredentials('testuser', 'testpass')
+            ->withBaseUrl($baseUrl)
+            ->build();
+
+        self::$client = new LakehouseClient($config);
     }
 
     public static function tearDownAfterClass(): void
@@ -103,7 +103,7 @@ final class LakehouseClientIntegrationTest extends TestCase
         );
 
         $response = self::$client->append('default', 'public', 'users', AppendRequest::single($payload));
-        self::assertTrue($response->ok);
+        self::assertTrue($response->ok, $response->errorCode ?? 'append returned ok=false');
     }
 
     public function testQueryStreamed(): void
@@ -135,11 +135,12 @@ final class LakehouseClientIntegrationTest extends TestCase
 
     public function testGetQuery(): void
     {
-        $queryResult = self::$client->queryAll(new QueryRequest(
+        $queryId = self::$client->query(new QueryRequest(
             statement: 'SELECT 1',
-        ));
+            sessionId: 'test-session',
+            queryId: '11111111-1111-1111-1111-111111111111',
+        ))->metadata->queryId;
 
-        $queryId = $queryResult->metadata->queryId;
         self::assertNotEmpty($queryId);
 
         $log = self::$client->getQuery($queryId);
@@ -169,7 +170,7 @@ final class LakehouseClientIntegrationTest extends TestCase
             $csv,
         );
 
-        self::assertTrue($response->ok);
+        self::assertTrue($response->ok, $response->errorCode ?? 'upload returned ok=false');
     }
 
     public function testValidate(): void
@@ -190,7 +191,7 @@ final class LakehouseClientIntegrationTest extends TestCase
             ),
         );
 
-        self::assertTrue($response->ok);
+        self::assertTrue($response->ok, $response->errorCode ?? 'append returned ok=false');
     }
 
     public function testQueryInvalidSql(): void
