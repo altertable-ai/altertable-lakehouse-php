@@ -43,7 +43,7 @@ final class LakehouseClientTest extends TestCase
             ->willReturn(new Response(200, [], '{"ok":true}'));
 
         $client = new LakehouseClient($this->config, $mock);
-        $request = AppendRequest::single(new AppendPayload(data: [['x' => 1]]));
+        $request = AppendRequest::single(new AppendPayload(['x' => 1]));
         $result = $client->append('cat', 'sch', 'tbl', $request);
 
         self::assertTrue($result->ok);

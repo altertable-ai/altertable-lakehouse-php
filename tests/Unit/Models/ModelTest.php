@@ -45,37 +45,35 @@ final class ModelTest extends TestCase
 
     public function testAppendPayloadToArray(): void
     {
-        $payload = new AppendPayload(
-            data: [['id' => 1, 'name' => 'Alice']],
-            columns: ['id', 'name'],
-        );
+        $payload = new AppendPayload([
+            'id' => 1,
+            'name' => 'Alice',
+        ]);
 
         $arr = $payload->toArray();
-        self::assertSame([['id' => 1, 'name' => 'Alice']], $arr['data']);
-        self::assertSame(['id', 'name'], $arr['columns']);
+        self::assertSame(['id' => 1, 'name' => 'Alice'], $arr);
     }
 
     public function testAppendRequestSingle(): void
     {
-        $payload = new AppendPayload(data: [['x' => 1]]);
+        $payload = new AppendPayload(['x' => 1]);
         $request = AppendRequest::single($payload);
 
         $arr = $request->toArray();
-        self::assertArrayHasKey('data', $arr);
-        self::assertSame([['x' => 1]], $arr['data']);
+        self::assertSame(['x' => 1], $arr);
     }
 
     public function testAppendRequestBatch(): void
     {
         $request = AppendRequest::batch(
-            new AppendPayload(data: [['a' => 1]]),
-            new AppendPayload(data: [['b' => 2]]),
+            new AppendPayload(['a' => 1]),
+            new AppendPayload(['b' => 2]),
         );
 
         $arr = $request->toArray();
         self::assertCount(2, $arr);
-        self::assertSame([['a' => 1]], $arr[0]['data']);
-        self::assertSame([['b' => 2]], $arr[1]['data']);
+        self::assertSame(['a' => 1], $arr[0]);
+        self::assertSame(['b' => 2], $arr[1]);
     }
 
     public function testAppendResponseFromArray(): void

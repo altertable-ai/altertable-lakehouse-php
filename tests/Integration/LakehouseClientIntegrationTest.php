@@ -97,10 +97,10 @@ final class LakehouseClientIntegrationTest extends TestCase
 
     public function testAppend(): void
     {
-        $payload = new AppendPayload(
-            data: [['id' => 1, 'name' => 'Alice']],
-            columns: ['id', 'name'],
-        );
+        $payload = new AppendPayload([
+            'id' => 1,
+            'name' => 'Alice',
+        ]);
 
         $response = self::$client->append('default', 'public', 'users', AppendRequest::single($payload));
         self::assertTrue($response->ok, $response->errorCode ?? 'append returned ok=false');
@@ -186,8 +186,8 @@ final class LakehouseClientIntegrationTest extends TestCase
             'public',
             'batch_test',
             AppendRequest::batch(
-                new AppendPayload(data: [['id' => 1, 'val' => 'a']]),
-                new AppendPayload(data: [['id' => 2, 'val' => 'b']]),
+                new AppendPayload(['id' => 1, 'val' => 'a']),
+                new AppendPayload(['id' => 2, 'val' => 'b']),
             ),
         );
 
