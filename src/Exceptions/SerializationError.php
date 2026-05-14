@@ -12,8 +12,11 @@ final class SerializationError extends LakehouseException
         ?string $operation = null,
     ) {
         parent::__construct(
-            $message, 0, $previous,
-            $operation, retriable: false,
+            $message,
+            0,
+            $previous,
+            $operation,
+            retriable: false,
         );
     }
 }

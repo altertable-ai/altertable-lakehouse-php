@@ -61,8 +61,8 @@ final class ModelTest extends TestCase
         $request = AppendRequest::single($payload);
 
         $arr = $request->toArray();
-        self::assertArrayHasKey('Single', $arr);
-        self::assertSame([['x' => 1]], $arr['Single']['data']);
+        self::assertArrayHasKey('data', $arr);
+        self::assertSame([['x' => 1]], $arr['data']);
     }
 
     public function testAppendRequestBatch(): void
@@ -73,8 +73,9 @@ final class ModelTest extends TestCase
         );
 
         $arr = $request->toArray();
-        self::assertArrayHasKey('Batch', $arr);
-        self::assertCount(2, $arr['Batch']);
+        self::assertCount(2, $arr);
+        self::assertSame([['a' => 1]], $arr[0]['data']);
+        self::assertSame([['b' => 2]], $arr[1]['data']);
     }
 
     public function testAppendResponseFromArray(): void

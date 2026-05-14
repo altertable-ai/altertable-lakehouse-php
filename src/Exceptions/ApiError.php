@@ -16,8 +16,14 @@ final class ApiError extends LakehouseException
         ?string $requestId = null,
     ) {
         parent::__construct(
-            $message, $statusCode ?? 0, $previous,
-            $operation, $method, $path, $statusCode, $requestId,
+            $message,
+            $statusCode ?? 0,
+            $previous,
+            $operation,
+            $method,
+            $path,
+            $statusCode,
+            $requestId,
             retriable: $statusCode !== null && $statusCode >= 500,
         );
     }
