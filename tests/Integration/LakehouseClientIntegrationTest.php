@@ -56,7 +56,9 @@ final class LakehouseClientIntegrationTest extends TestCase
         }
 
         $command = sprintf(
-            '%s run --rm -p %s:15000 -e ALTERTABLE_MOCK_USERS=testuser:testpass ghcr.io/altertable-ai/altertable-mock:latest',
+            '%s run --rm -p %s:15000 '
+            . '-e ALTERTABLE_MOCK_USERS=testuser:testpass '
+            . 'ghcr.io/altertable-ai/altertable-mock:latest',
             escapeshellcmd($dockerBinary),
             escapeshellarg($port),
         );

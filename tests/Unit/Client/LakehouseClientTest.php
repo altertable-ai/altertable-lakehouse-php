@@ -213,13 +213,18 @@ final class LakehouseClientTest extends TestCase
     private function createStream(string $content): StreamInterface
     {
         $stream = $this->createMock(StreamInterface::class);
-        $stream->method('eof')->willReturnOnConsecutiveCalls(...array_fill(0, strlen($content), false), true);
+
+        $eofValues = array_fill(0, strlen($content), false);
+        $eofValues[] = true;
+        $stream->method('eof')->willReturnOnConsecutiveCalls(...$eofValues);
+
+        $offset = 0;
         $stream->method('read')->willReturnCallback(function (int $length) use ($content, &$offset) {
-            $offset ??= 0;
             $chunk = substr($content, $offset, $length);
             $offset += $length;
             return $chunk;
         });
+
         return $stream;
     }
 }
