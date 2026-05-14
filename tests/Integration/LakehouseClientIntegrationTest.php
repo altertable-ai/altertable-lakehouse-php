@@ -69,7 +69,11 @@ final class LakehouseClientIntegrationTest extends TestCase
             2 => ['file', sys_get_temp_dir() . '/altertable-mock.err', 'a'],
         ];
 
-        self::$mockProcess = proc_open($command, $descriptorSpec, $pipes);
+        self::$mockProcess = proc_open(
+            $command,
+            $descriptorSpec,
+            $pipes,
+        );
         if (!is_resource(self::$mockProcess)) {
             self::markTestSkipped('Failed to start local altertable-mock container.');
         }

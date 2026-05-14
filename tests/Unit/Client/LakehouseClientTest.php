@@ -182,8 +182,10 @@ final class LakehouseClientTest extends TestCase
         $this->expectException(NetworkError::class);
 
         $mock = $this->createMock(ClientInterface::class);
+        $request = new \GuzzleHttp\Psr7\Request('GET', '');
+
         $mock->method('request')
-            ->willThrowException(new \GuzzleHttp\Exception\ConnectException('Failed', new \GuzzleHttp\Psr7\Request('GET', '')));
+            ->willThrowException(new \GuzzleHttp\Exception\ConnectException('Failed', $request));
 
         $client = new LakehouseClient($this->config, $mock);
         $client->validate(new ValidateRequest('SELECT 1'));
