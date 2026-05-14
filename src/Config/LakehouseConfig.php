@@ -138,7 +138,7 @@ final class LakehouseConfigBuilder
 
         return new LakehouseConfig(
             baseUrl: $this->baseUrl,
-            basicAuthToken: $token,
+            basicAuthToken: $this->normalizeBasicAuthToken($token),
             connectTimeout: $this->connectTimeout,
             readTimeout: $this->readTimeout,
             maxRetries: $this->maxRetries,
@@ -169,5 +169,10 @@ final class LakehouseConfigBuilder
         }
 
         return null;
+    }
+
+    private function normalizeBasicAuthToken(string $token): string
+    {
+        return str_starts_with($token, 'Basic ') ? $token : 'Basic ' . $token;
     }
 }

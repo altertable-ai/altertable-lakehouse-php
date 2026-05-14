@@ -204,14 +204,14 @@ composer install
 
 ### Running Integration Tests
 
-Integration tests target `altertable-mock`:
+Integration tests target `altertable-mock`.
+
+* In CI, GitHub Actions starts the mock as a service container on `localhost:15000`.
+* Outside CI, the test suite will try to start `ghcr.io/altertable-ai/altertable-mock:latest` with Docker automatically and use `ALTERTABLE_MOCK_PORT` when set.
 
 ```bash
-# Start the mock server on port 15000
-export ALTERTABLE_MOCK_USERS="testuser:testpass"
-docker run --rm -p 15000:15000 \
-  -e ALTERTABLE_MOCK_USERS=testuser:testpass \
-  ghcr.io/altertable-ai/altertable-mock:latest
+# Optional: override the local port used by the test suite
+export ALTERTABLE_MOCK_PORT=15000
 
 # Run tests
 ./vendor/bin/phpunit

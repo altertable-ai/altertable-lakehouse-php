@@ -17,10 +17,16 @@ use PHPUnit\Framework\TestCase;
 final class LakehouseClientIntegrationTest extends TestCase
 {
     private static ?LakehouseClient $client = null;
+    private static $mockProcess = null;
 
     public static function setUpBeforeClass(): void
     {
         $port = getenv('ALTERTABLE_MOCK_PORT') ?: '15000';
+
+        if (getenv('CI') === false || getenv('CI') === '') {
+            self::startLocalMock($port);
+        }
+
         $baseUrl = 'http://localhost:' . $port;
 
         self::$client = new LakehouseClient(
@@ -34,6 +40,53 @@ final class LakehouseClientIntegrationTest extends TestCase
     public static function tearDownAfterClass(): void
     {
         self::$client = null;
+
+        if (is_resource(self::$mockProcess)) {
+            proc_terminate(self::$mockProcess);
+            proc_close(self::$mockProcess);
+            self::$mockProcess = null;
+        }
+    }
+
+    private static function startLocalMock(string $port): void
+    {
+        $dockerBinary = trim((string) shell_exec('command -v docker 2>/dev/null'));
+        if ($dockerBinary === '') {
+            self::markTestSkipped('Local integration tests require Docker when CI is not set.');
+        }
+
+        $command = sprintf(
+            '%s run --rm -p %s:15000 -e ALTERTABLE_MOCK_USERS=testuser:testpass ghcr.io/altertable-ai/altertable-mock:latest',
+            escapeshellcmd($dockerBinary),
+            escapeshellarg($port),
+        );
+
+        $descriptorSpec = [
+            0 => ['pipe', 'r'],
+            1 => ['file', sys_get_temp_dir() . '/altertable-mock.out', 'a'],
+            2 => ['file', sys_get_temp_dir() . '/altertable-mock.err', 'a'],
+        ];
+
+        self::$mockProcess = proc_open($command, $descriptorSpec, $pipes);
+        if (!is_resource(self::$mockProcess)) {
+            self::markTestSkipped('Failed to start local altertable-mock container.');
+        }
+
+        if (isset($pipes[0]) && is_resource($pipes[0])) {
+            fclose($pipes[0]);
+        }
+
+        $deadline = microtime(true) + 30;
+        while (microtime(true) < $deadline) {
+            $fp = @fsockopen('127.0.0.1', (int) $port, $errno, $errstr, 0.5);
+            if (is_resource($fp)) {
+                fclose($fp);
+                return;
+            }
+            usleep(250000);
+        }
+
+        self::markTestSkipped('altertable-mock did not become ready in time.');
     }
 
     public function testAppend(): void

@@ -185,6 +185,15 @@ final class LakehouseClient
         string|StreamInterface $body,
         ?string $primaryKey = null,
     ): AppendResponse {
+        if ($mode === UploadMode::Upsert && ($primaryKey === null || $primaryKey === '')) {
+            throw new BadRequestError(
+                message: 'primary_key is required when mode=upsert',
+                operation: 'upload',
+                method: 'POST',
+                path: '/upload',
+            );
+        }
+
         $query = [
             'catalog' => $catalog,
             'schema' => $schema,
@@ -248,7 +257,7 @@ final class LakehouseClient
             'read_timeout' => $this->config->readTimeout,
             'timeout' => $this->config->readTimeout,
             'headers' => [
-                'Authorization' => 'Basic ' . $this->config->basicAuthToken,
+                'Authorization' => $this->config->basicAuthToken,
                 'User-Agent' => $ua,
             ],
             'http_errors' => false,
