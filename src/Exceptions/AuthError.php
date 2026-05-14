@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Altertable\Lakehouse\Exceptions;
+
+final class AuthError extends LakehouseException
+{
+    public function __construct(
+        string $message = 'Authentication failed',
+        ?\Throwable $previous = null,
+        ?string $operation = null,
+        ?string $method = null,
+        ?string $path = null,
+        ?int $statusCode = null,
+        ?string $requestId = null,
+    ) {
+        parent::__construct(
+            $message, 401, $previous,
+            $operation, $method, $path, $statusCode, $requestId,
+            retriable: false,
+        );
+    }
+}
