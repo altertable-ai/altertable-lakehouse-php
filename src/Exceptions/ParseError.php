@@ -13,8 +13,11 @@ final class ParseError extends LakehouseException
         public readonly ?int $lineIndex = null,
     ) {
         parent::__construct(
-            $message, 0, $previous,
-            $operation, retriable: false,
+            $message,
+            0,
+            $previous,
+            $operation,
+            retriable: false,
         );
     }
 }

@@ -16,8 +16,14 @@ final class BadRequestError extends LakehouseException
         ?string $requestId = null,
     ) {
         parent::__construct(
-            $message, 400, $previous,
-            $operation, $method, $path, $statusCode, $requestId,
+            $message,
+            400,
+            $previous,
+            $operation,
+            $method,
+            $path,
+            $statusCode,
+            $requestId,
             retriable: false,
         );
     }

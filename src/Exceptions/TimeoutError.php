@@ -15,8 +15,14 @@ final class TimeoutError extends LakehouseException
         ?string $requestId = null,
     ) {
         parent::__construct(
-            $message, 0, $previous,
-            $operation, $method, $path, null, $requestId,
+            $message,
+            0,
+            $previous,
+            $operation,
+            $method,
+            $path,
+            null,
+            $requestId,
             retriable: true,
         );
     }

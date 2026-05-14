@@ -16,8 +16,14 @@ final class AuthError extends LakehouseException
         ?string $requestId = null,
     ) {
         parent::__construct(
-            $message, 401, $previous,
-            $operation, $method, $path, $statusCode, $requestId,
+            $message,
+            401,
+            $previous,
+            $operation,
+            $method,
+            $path,
+            $statusCode,
+            $requestId,
             retriable: false,
         );
     }
