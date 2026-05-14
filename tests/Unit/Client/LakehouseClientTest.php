@@ -54,7 +54,7 @@ final class LakehouseClientTest extends TestCase
         $ndjson = "{\"type\":\"metadata\",\"query_id\":\"q1\",\"status\":\"completed\"}\n"
             . "{\"type\":\"columns\",\"columns\":[{\"name\":\"id\",\"type\":\"integer\"}]}\n"
             . "{\"id\":1,\"name\":\"Alice\"}\n"
-            . "{\"id\":2,\"name\":\"Bob\"}\n";
+            . "{\"id\":2,\"name\":\"Bob\"}";
 
         $stream = $this->createStream($ndjson);
 
