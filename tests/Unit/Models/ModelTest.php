@@ -13,7 +13,6 @@ use Altertable\Lakehouse\Models\ComputeSize;
 use Altertable\Lakehouse\Models\QueryLogResponse;
 use Altertable\Lakehouse\Models\QueryMetadata;
 use Altertable\Lakehouse\Models\QueryRequest;
-use Altertable\Lakehouse\Models\UploadFormat;
 use Altertable\Lakehouse\Models\UploadMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 use Altertable\Lakehouse\Models\ValidateResponse;
@@ -26,13 +25,6 @@ final class ModelTest extends TestCase
         self::assertSame('S', ComputeSize::S->value);
         self::assertSame('M', ComputeSize::M->value);
         self::assertSame('L', ComputeSize::L->value);
-    }
-
-    public function testUploadFormatEnum(): void
-    {
-        self::assertSame('csv', UploadFormat::Csv->value);
-        self::assertSame('json', UploadFormat::Json->value);
-        self::assertSame('parquet', UploadFormat::Parquet->value);
     }
 
     public function testUploadModeEnum(): void

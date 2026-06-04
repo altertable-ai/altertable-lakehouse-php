@@ -9,7 +9,6 @@ use Altertable\Lakehouse\LakehouseClient;
 use Altertable\Lakehouse\Models\AppendPayload;
 use Altertable\Lakehouse\Models\AppendRequest;
 use Altertable\Lakehouse\Models\QueryRequest;
-use Altertable\Lakehouse\Models\UploadFormat;
 use Altertable\Lakehouse\Models\UploadMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 use PHPUnit\Framework\TestCase;
@@ -161,9 +160,9 @@ final class LakehouseClientIntegrationTest extends TestCase
             'test',
             'public',
             'upload_test',
-            UploadFormat::Csv,
-            UploadMode::Create,
             $csv,
+            UploadMode::Create,
+            contentType: 'text/csv',
         );
     }
 

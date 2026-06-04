@@ -21,7 +21,6 @@ use Altertable\Lakehouse\Models\QueryLogResponse;
 use Altertable\Lakehouse\Models\QueryMetadata;
 use Altertable\Lakehouse\Models\QueryRequest;
 use Altertable\Lakehouse\Models\QueryResult;
-use Altertable\Lakehouse\Models\UploadFormat;
 use Altertable\Lakehouse\Models\UploadMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 use Altertable\Lakehouse\Models\ValidateResponse;
@@ -180,39 +179,26 @@ final class LakehouseClient
         string $catalog,
         string $schema,
         string $table,
-        UploadFormat $format,
-        UploadMode $mode,
         string|StreamInterface $body,
+        ?UploadMode $mode = null,
         ?string $primaryKey = null,
+        string $contentType = 'application/octet-stream',
     ): AppendResponse {
-        if ($mode === UploadMode::Upsert && ($primaryKey === null || $primaryKey === '')) {
-            throw new BadRequestError(
-                message: 'primary_key is required when mode=upsert',
-                operation: 'upload',
-                method: 'POST',
-                path: '/upload',
-            );
-        }
-
         $query = [
             'catalog' => $catalog,
             'schema' => $schema,
             'table' => $table,
-            'format' => $format->value,
-            'mode' => $mode->value,
         ];
+
+        if ($mode !== null) {
+            $query['mode'] = $mode->value;
+        }
 
         if ($primaryKey !== null) {
             $query['primary_key'] = $primaryKey;
         }
 
-        $contentType = match ($format) {
-            UploadFormat::Csv => 'text/csv',
-            UploadFormat::Json => 'application/json',
-            UploadFormat::Parquet => 'application/octet-stream',
-        };
-
-        $response = $this->send('POST', '/upload', [
+        $response = $this->send('POST', '/upsert', [
             'query' => $query,
             'body' => $body,
             'headers' => ['Content-Type' => $contentType],

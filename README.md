@@ -20,7 +20,6 @@ use Altertable\Lakehouse\LakehouseClient;
 use Altertable\Lakehouse\Models\AppendPayload;
 use Altertable\Lakehouse\Models\AppendRequest;
 use Altertable\Lakehouse\Models\QueryRequest;
-use Altertable\Lakehouse\Models\UploadFormat;
 use Altertable\Lakehouse\Models\UploadMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 
@@ -109,9 +108,9 @@ $response = $client->upload(
     'my_catalog',
     'my_schema',
     'my_table',
-    UploadFormat::Csv,
-    UploadMode::Create,
     $csv,
+    UploadMode::Create,
+    contentType: 'text/csv',
 );
 
 // Upsert with primary key
@@ -119,10 +118,10 @@ $response = $client->upload(
     'my_catalog',
     'my_schema',
     'my_table',
-    UploadFormat::Json,
-    UploadMode::Upsert,
     '[{"id":1,"name":"Alice"}]',
+    UploadMode::Upsert,
     primaryKey: 'id',
+    contentType: 'application/json',
 );
 ```
 

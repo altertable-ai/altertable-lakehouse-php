@@ -14,7 +14,6 @@ use Altertable\Lakehouse\LakehouseClient;
 use Altertable\Lakehouse\Models\AppendPayload;
 use Altertable\Lakehouse\Models\AppendRequest;
 use Altertable\Lakehouse\Models\QueryRequest;
-use Altertable\Lakehouse\Models\UploadFormat;
 use Altertable\Lakehouse\Models\UploadMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 use GuzzleHttp\ClientInterface;
@@ -111,16 +110,16 @@ final class LakehouseClientTest extends TestCase
         $mock = $this->createMock(ClientInterface::class);
         $mock->expects(self::once())
             ->method('request')
-            ->with('POST', '/upload', self::callback(function (array $options) use ($body): bool {
+            ->with('POST', '/upsert', self::callback(function (array $options) use ($body): bool {
                 return $options['body'] === $body
                     && $options['headers']['Content-Type'] === 'text/csv'
-                    && $options['query']['format'] === 'csv'
+                    && !array_key_exists('format', $options['query'])
                     && $options['query']['mode'] === 'create';
             }))
             ->willReturn(new Response(200, [], '{"ok":true}'));
 
         $client = new LakehouseClient($this->config, $mock);
-        $result = $client->upload('cat', 'sch', 'tbl', UploadFormat::Csv, UploadMode::Create, $body);
+        $result = $client->upload('cat', 'sch', 'tbl', $body, UploadMode::Create, contentType: 'text/csv');
 
         self::assertTrue($result->ok);
     }
@@ -130,14 +129,14 @@ final class LakehouseClientTest extends TestCase
         $mock = $this->createMock(ClientInterface::class);
         $mock->expects(self::once())
             ->method('request')
-            ->with('POST', '/upload', self::callback(function (array $options): bool {
+            ->with('POST', '/upsert', self::callback(function (array $options): bool {
                 return ($options['query']['primary_key'] ?? null) === 'id'
                     && $options['query']['mode'] === 'upsert';
             }))
             ->willReturn(new Response(200, [], '{"ok":true}'));
 
         $client = new LakehouseClient($this->config, $mock);
-        $client->upload('cat', 'sch', 'tbl', UploadFormat::Json, UploadMode::Upsert, '{}', primaryKey: 'id');
+        $client->upload('cat', 'sch', 'tbl', '{}', UploadMode::Upsert, primaryKey: 'id', contentType: 'application/json');
     }
 
     public function testValidate(): void
