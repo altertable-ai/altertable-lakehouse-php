@@ -136,7 +136,15 @@ final class LakehouseClientTest extends TestCase
             ->willReturn(new Response(200, [], '{"ok":true}'));
 
         $client = new LakehouseClient($this->config, $mock);
-        $client->upload('cat', 'sch', 'tbl', '{}', UploadMode::Upsert, primaryKey: 'id', contentType: 'application/json');
+        $client->upload(
+            'cat',
+            'sch',
+            'tbl',
+            '{}',
+            UploadMode::Upsert,
+            primaryKey: 'id',
+            contentType: 'application/json',
+        );
     }
 
     public function testValidate(): void
