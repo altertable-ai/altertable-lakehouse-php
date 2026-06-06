@@ -142,6 +142,17 @@ final class ModelTest extends TestCase
         self::assertSame(0.5, $log->progress);
     }
 
+    public function testQueryLogResponseDropsUnencodableArrayError(): void
+    {
+        $log = QueryLogResponse::fromArray([
+            'query_id' => 'q-1',
+            'status' => 'failed',
+            'error' => ['message' => "\xB1\x31"],
+        ]);
+
+        self::assertNull($log->error);
+    }
+
     public function testCancelQueryResponseFromArray(): void
     {
         $resp = CancelQueryResponse::fromArray(['ok' => true, 'message' => 'Cancelled']);

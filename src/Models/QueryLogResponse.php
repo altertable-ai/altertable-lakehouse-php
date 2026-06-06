@@ -20,6 +20,12 @@ final class QueryLogResponse
 
     public static function fromArray(array $data): self
     {
+        $error = $data['error'] ?? null;
+        if (is_array($error)) {
+            $error = json_encode($error);
+            $error = $error === false ? null : $error;
+        }
+
         return new self(
             queryId: (string) ($data['query_id'] ?? $data['uuid'] ?? ''),
             status: (string) ($data['status'] ?? 'unknown'),
@@ -27,7 +33,7 @@ final class QueryLogResponse
             durationMs: $data['duration_ms'] ?? null,
             totalRows: $data['total_rows'] ?? $data['row_count'] ?? null,
             totalBytes: $data['total_bytes'] ?? null,
-            error: is_array($data['error'] ?? null) ? json_encode($data['error']) : ($data['error'] ?? null),
+            error: $error,
             progress: isset($data['progress']) ? (float) $data['progress'] : null,
         );
     }

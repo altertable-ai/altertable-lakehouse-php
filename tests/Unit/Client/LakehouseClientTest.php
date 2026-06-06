@@ -9,6 +9,7 @@ use Altertable\Lakehouse\Exceptions\AuthError;
 use Altertable\Lakehouse\Exceptions\BadRequestError;
 use Altertable\Lakehouse\Exceptions\NetworkError;
 use Altertable\Lakehouse\Exceptions\ParseError;
+use Altertable\Lakehouse\Exceptions\SerializationError;
 use Altertable\Lakehouse\Exceptions\TimeoutError;
 use Altertable\Lakehouse\LakehouseClient;
 use Altertable\Lakehouse\Models\AppendPayload;
@@ -160,6 +161,22 @@ final class LakehouseClientTest extends TestCase
         $result = $client->validate(new ValidateRequest('SELECT 1'));
 
         self::assertTrue($result->valid);
+    }
+
+    public function testSerializationErrorWrapsJsonEncodingFailure(): void
+    {
+        $this->expectException(SerializationError::class);
+
+        $mock = $this->createMock(ClientInterface::class);
+        $mock->expects(self::never())->method('request');
+
+        $client = new LakehouseClient($this->config, $mock);
+        $client->append(
+            'cat',
+            'sch',
+            'tbl',
+            AppendRequest::single(new AppendPayload(['value' => NAN])),
+        );
     }
 
     public function testAuthErrorOn401(): void

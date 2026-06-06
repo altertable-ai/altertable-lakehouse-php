@@ -422,11 +422,11 @@ final class LakehouseClient
 
     private function serialize(mixed $data): string
     {
-        $json = json_encode($data, JSON_THROW_ON_ERROR);
-        if ($json === false) {
-            throw new SerializationError('Failed to encode request body');
+        try {
+            return json_encode($data, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new SerializationError('Failed to encode request body', $e);
         }
-        return $json;
     }
 
     private function deserialize(ResponseInterface $response): array

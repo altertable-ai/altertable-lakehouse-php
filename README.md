@@ -34,10 +34,10 @@ $client = new LakehouseClient($config);
 
 Credentials are resolved in this priority order:
 
-1. Direct `username` + `password` passed to `LakehouseConfig::builder()`
-2. Pre-encoded `Basic` token via `withBasicAuthToken()`
-3. Environment variables: `ALTERTABLE_USERNAME` + `ALTERTABLE_PASSWORD`
-4. Environment variable: `ALTERTABLE_BASIC_AUTH_TOKEN`
+1. Pre-encoded `Basic` token via `withBasicAuthToken()`
+2. Direct `username` + `password` passed to `LakehouseConfig::builder()`
+3. Environment variable: `ALTERTABLE_BASIC_AUTH_TOKEN`
+4. Environment variables: `ALTERTABLE_USERNAME` + `ALTERTABLE_PASSWORD`
 
 A `ConfigurationError` is thrown at construction if no credentials are found.
 
@@ -46,17 +46,14 @@ A `ConfigurationError` is thrown at construction if no credentials are found.
 ```php
 // Single record
 $response = $client->append('my_catalog', 'my_schema', 'my_table',
-    AppendRequest::single(new AppendPayload(
-        data: [['id' => 1, 'name' => 'Alice']],
-        columns: ['id', 'name'],
-    )),
+    AppendRequest::single(new AppendPayload(['id' => 1, 'name' => 'Alice'])),
 );
 
 // Batch records
 $response = $client->append('my_catalog', 'my_schema', 'my_table',
     AppendRequest::batch(
-        new AppendPayload(data: [['id' => 1, 'val' => 'a']]),
-        new AppendPayload(data: [['id' => 2, 'val' => 'b']]),
+        new AppendPayload(['id' => 1, 'val' => 'a']),
+        new AppendPayload(['id' => 2, 'val' => 'b']),
     ),
 );
 ```
