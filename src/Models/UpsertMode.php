@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Altertable\Lakehouse\Models;
 
-enum UploadMode: string
+enum UpsertMode: string
 {
     case Create = 'create';
     case Append = 'append';

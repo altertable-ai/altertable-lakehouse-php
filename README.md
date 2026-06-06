@@ -17,10 +17,8 @@ composer require altertable/lakehouse-php
 
 use Altertable\Lakehouse\Config\LakehouseConfig;
 use Altertable\Lakehouse\LakehouseClient;
-use Altertable\Lakehouse\Models\AppendPayload;
-use Altertable\Lakehouse\Models\AppendRequest;
 use Altertable\Lakehouse\Models\QueryRequest;
-use Altertable\Lakehouse\Models\UploadMode;
+use Altertable\Lakehouse\Models\UpsertMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 
 $config = LakehouseConfig::builder()
@@ -45,17 +43,16 @@ A `ConfigurationError` is thrown at construction if no credentials are found.
 
 ```php
 // Single record
-$response = $client->append('my_catalog', 'my_schema', 'my_table',
-    AppendRequest::single(new AppendPayload(['id' => 1, 'name' => 'Alice'])),
-);
+$response = $client->append('my_catalog', 'my_schema', 'my_table', [
+    'id' => 1,
+    'name' => 'Alice',
+]);
 
 // Batch records
-$response = $client->append('my_catalog', 'my_schema', 'my_table',
-    AppendRequest::batch(
-        new AppendPayload(['id' => 1, 'val' => 'a']),
-        new AppendPayload(['id' => 2, 'val' => 'b']),
-    ),
-);
+$response = $client->append('my_catalog', 'my_schema', 'my_table', [
+    ['id' => 1, 'val' => 'a'],
+    ['id' => 2, 'val' => 'b'],
+]);
 ```
 
 ### Query (Streamed)
@@ -96,27 +93,27 @@ echo $log->status . ' - ' . ($log->progress * 100) . '%';
 $response = $client->cancelQuery('your-query-id', 'your-session-id');
 ```
 
-### Upload
+### Upsert
 
 ```php
 $csv = "id,name,email\n1,Alice,alice@example.com\n";
 
-$response = $client->upload(
+$response = $client->upsert(
     'my_catalog',
     'my_schema',
     'my_table',
     $csv,
-    UploadMode::Create,
+    UpsertMode::Create,
     contentType: 'text/csv',
 );
 
 // Upsert with primary key
-$response = $client->upload(
+$response = $client->upsert(
     'my_catalog',
     'my_schema',
     'my_table',
     '[{"id":1,"name":"Alice"}]',
-    UploadMode::Upsert,
+    UpsertMode::Upsert,
     primaryKey: 'id',
     contentType: 'application/json',
 );

@@ -12,10 +12,8 @@ use Altertable\Lakehouse\Exceptions\ParseError;
 use Altertable\Lakehouse\Exceptions\SerializationError;
 use Altertable\Lakehouse\Exceptions\TimeoutError;
 use Altertable\Lakehouse\LakehouseClient;
-use Altertable\Lakehouse\Models\AppendPayload;
-use Altertable\Lakehouse\Models\AppendRequest;
 use Altertable\Lakehouse\Models\QueryRequest;
-use Altertable\Lakehouse\Models\UploadMode;
+use Altertable\Lakehouse\Models\UpsertMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
@@ -44,8 +42,26 @@ final class LakehouseClientTest extends TestCase
             ->willReturn(new Response(200, [], '{"ok":true}'));
 
         $client = new LakehouseClient($this->config, $mock);
-        $request = AppendRequest::single(new AppendPayload(['x' => 1]));
-        $result = $client->append('cat', 'sch', 'tbl', $request);
+        $result = $client->append('cat', 'sch', 'tbl', ['x' => 1]);
+
+        self::assertTrue($result->ok);
+    }
+
+    public function testAppendBatchSendsArrayPayload(): void
+    {
+        $mock = $this->createMock(ClientInterface::class);
+        $mock->expects(self::once())
+            ->method('request')
+            ->with('POST', '/append', self::callback(function (array $options): bool {
+                return $options['body'] === '[{"x":1},{"x":2}]';
+            }))
+            ->willReturn(new Response(200, [], '{"ok":true}'));
+
+        $client = new LakehouseClient($this->config, $mock);
+        $result = $client->append('cat', 'sch', 'tbl', [
+            ['x' => 1],
+            ['x' => 2],
+        ]);
 
         self::assertTrue($result->ok);
     }
@@ -105,7 +121,7 @@ final class LakehouseClientTest extends TestCase
         self::assertTrue($result->ok);
     }
 
-    public function testUploadCsv(): void
+    public function testUpsertCsv(): void
     {
         $body = "id,name\n1,Alice\n";
 
@@ -121,12 +137,19 @@ final class LakehouseClientTest extends TestCase
             ->willReturn(new Response(200, [], '{"ok":true}'));
 
         $client = new LakehouseClient($this->config, $mock);
-        $result = $client->upload('cat', 'sch', 'tbl', $body, UploadMode::Create, contentType: 'text/csv');
+        $result = $client->upsert(
+            'cat',
+            'sch',
+            'tbl',
+            $body,
+            UpsertMode::Create,
+            contentType: 'text/csv',
+        );
 
         self::assertTrue($result->ok);
     }
 
-    public function testUploadWithPrimaryKey(): void
+    public function testUpsertWithPrimaryKey(): void
     {
         $mock = $this->createMock(ClientInterface::class);
         $mock->expects(self::once())
@@ -138,12 +161,12 @@ final class LakehouseClientTest extends TestCase
             ->willReturn(new Response(200, [], '{"ok":true}'));
 
         $client = new LakehouseClient($this->config, $mock);
-        $client->upload(
+        $client->upsert(
             'cat',
             'sch',
             'tbl',
             '{}',
-            UploadMode::Upsert,
+            UpsertMode::Upsert,
             primaryKey: 'id',
             contentType: 'application/json',
         );
@@ -175,7 +198,7 @@ final class LakehouseClientTest extends TestCase
             'cat',
             'sch',
             'tbl',
-            AppendRequest::single(new AppendPayload(['value' => NAN])),
+            ['value' => NAN],
         );
     }
 

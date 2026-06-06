@@ -12,7 +12,6 @@ use Altertable\Lakehouse\Exceptions\NetworkError;
 use Altertable\Lakehouse\Exceptions\ParseError;
 use Altertable\Lakehouse\Exceptions\SerializationError;
 use Altertable\Lakehouse\Exceptions\TimeoutError;
-use Altertable\Lakehouse\Models\AppendRequest;
 use Altertable\Lakehouse\Models\AppendResponse;
 use Altertable\Lakehouse\Models\CancelQueryResponse;
 use Altertable\Lakehouse\Models\ColumnSchema;
@@ -21,7 +20,7 @@ use Altertable\Lakehouse\Models\QueryLogResponse;
 use Altertable\Lakehouse\Models\QueryMetadata;
 use Altertable\Lakehouse\Models\QueryRequest;
 use Altertable\Lakehouse\Models\QueryResult;
-use Altertable\Lakehouse\Models\UploadMode;
+use Altertable\Lakehouse\Models\UpsertMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 use Altertable\Lakehouse\Models\ValidateResponse;
 use GuzzleHttp\Client as GuzzleClient;
@@ -61,12 +60,18 @@ final class LakehouseClient
         string $catalog,
         string $schema,
         string $table,
-        AppendRequest $request,
+        array $payload,
+        ?bool $sync = null,
     ): AppendResponse {
-        $body = $this->serialize($request->toArray());
+        $body = $this->serialize($payload);
+        $query = compact('catalog', 'schema', 'table');
+
+        if ($sync !== null) {
+            $query['sync'] = $sync;
+        }
 
         $response = $this->send('POST', '/append', [
-            'query' => compact('catalog', 'schema', 'table'),
+            'query' => $query,
             'body' => $body,
             'headers' => ['Content-Type' => 'application/json'],
         ], 'append');
@@ -189,14 +194,14 @@ final class LakehouseClient
         return CancelQueryResponse::fromArray($this->deserialize($response));
     }
 
-    // ── Upload ────────────────────────────────────────────────────────
+    // ── Upsert ────────────────────────────────────────────────────────
 
-    public function upload(
+    public function upsert(
         string $catalog,
         string $schema,
         string $table,
         string|StreamInterface $body,
-        ?UploadMode $mode = null,
+        UpsertMode $mode,
         ?string $primaryKey = null,
         string $contentType = 'application/octet-stream',
     ): AppendResponse {
@@ -206,9 +211,7 @@ final class LakehouseClient
             'table' => $table,
         ];
 
-        if ($mode !== null) {
-            $query['mode'] = $mode->value;
-        }
+        $query['mode'] = $mode->value;
 
         if ($primaryKey !== null) {
             $query['primary_key'] = $primaryKey;
@@ -218,7 +221,7 @@ final class LakehouseClient
             'query' => $query,
             'body' => $body,
             'headers' => ['Content-Type' => $contentType],
-        ], 'upload');
+        ], 'upsert');
 
         return AppendResponse::fromArray($this->deserialize($response));
     }

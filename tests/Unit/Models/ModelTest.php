@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Altertable\Lakehouse\Tests\Unit\Models;
 
-use Altertable\Lakehouse\Models\AppendPayload;
-use Altertable\Lakehouse\Models\AppendRequest;
 use Altertable\Lakehouse\Models\AppendResponse;
 use Altertable\Lakehouse\Models\CancelQueryResponse;
 use Altertable\Lakehouse\Models\ColumnSchema;
@@ -13,7 +11,7 @@ use Altertable\Lakehouse\Models\ComputeSize;
 use Altertable\Lakehouse\Models\QueryLogResponse;
 use Altertable\Lakehouse\Models\QueryMetadata;
 use Altertable\Lakehouse\Models\QueryRequest;
-use Altertable\Lakehouse\Models\UploadMode;
+use Altertable\Lakehouse\Models\UpsertMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 use Altertable\Lakehouse\Models\ValidateResponse;
 use PHPUnit\Framework\TestCase;
@@ -27,45 +25,12 @@ final class ModelTest extends TestCase
         self::assertSame('L', ComputeSize::L->value);
     }
 
-    public function testUploadModeEnum(): void
+    public function testUpsertModeEnum(): void
     {
-        self::assertSame('create', UploadMode::Create->value);
-        self::assertSame('append', UploadMode::Append->value);
-        self::assertSame('upsert', UploadMode::Upsert->value);
-        self::assertSame('overwrite', UploadMode::Overwrite->value);
-    }
-
-    public function testAppendPayloadToArray(): void
-    {
-        $payload = new AppendPayload([
-            'id' => 1,
-            'name' => 'Alice',
-        ]);
-
-        $arr = $payload->toArray();
-        self::assertSame(['id' => 1, 'name' => 'Alice'], $arr);
-    }
-
-    public function testAppendRequestSingle(): void
-    {
-        $payload = new AppendPayload(['x' => 1]);
-        $request = AppendRequest::single($payload);
-
-        $arr = $request->toArray();
-        self::assertSame(['x' => 1], $arr);
-    }
-
-    public function testAppendRequestBatch(): void
-    {
-        $request = AppendRequest::batch(
-            new AppendPayload(['a' => 1]),
-            new AppendPayload(['b' => 2]),
-        );
-
-        $arr = $request->toArray();
-        self::assertCount(2, $arr);
-        self::assertSame(['a' => 1], $arr[0]);
-        self::assertSame(['b' => 2], $arr[1]);
+        self::assertSame('create', UpsertMode::Create->value);
+        self::assertSame('append', UpsertMode::Append->value);
+        self::assertSame('upsert', UpsertMode::Upsert->value);
+        self::assertSame('overwrite', UpsertMode::Overwrite->value);
     }
 
     public function testAppendResponseFromArray(): void
@@ -74,9 +39,16 @@ final class ModelTest extends TestCase
         self::assertTrue($response->ok);
         self::assertNull($response->errorCode);
 
-        $response = AppendResponse::fromArray(['ok' => false, 'error_code' => 'invalid-data']);
+        $response = AppendResponse::fromArray([
+            'ok' => false,
+            'error_code' => 'invalid-data',
+            'error_message' => 'Invalid data',
+            'task_id' => '11111111-1111-1111-1111-111111111111',
+        ]);
         self::assertFalse($response->ok);
         self::assertSame('invalid-data', $response->errorCode);
+        self::assertSame('Invalid data', $response->errorMessage);
+        self::assertSame('11111111-1111-1111-1111-111111111111', $response->taskId);
     }
 
     public function testQueryRequestToArray(): void

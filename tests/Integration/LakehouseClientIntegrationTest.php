@@ -6,10 +6,8 @@ namespace Altertable\Lakehouse\Tests\Integration;
 
 use Altertable\Lakehouse\Config\LakehouseConfig;
 use Altertable\Lakehouse\LakehouseClient;
-use Altertable\Lakehouse\Models\AppendPayload;
-use Altertable\Lakehouse\Models\AppendRequest;
 use Altertable\Lakehouse\Models\QueryRequest;
-use Altertable\Lakehouse\Models\UploadMode;
+use Altertable\Lakehouse\Models\UpsertMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 use PHPUnit\Framework\TestCase;
 
@@ -96,12 +94,12 @@ final class LakehouseClientIntegrationTest extends TestCase
 
     public function testAppend(): void
     {
-        $payload = new AppendPayload([
+        $payload = [
             'id' => 1,
             'name' => 'Alice',
-        ]);
+        ];
 
-        $response = self::$client->append('test', 'public', 'users', AppendRequest::single($payload));
+        $response = self::$client->append('test', 'public', 'users', $payload);
         self::assertFalse($response->ok);
         self::assertSame('invalid-data', $response->errorCode);
     }
@@ -154,17 +152,17 @@ final class LakehouseClientIntegrationTest extends TestCase
         self::assertTrue($response->ok || $response->cancelled === true, 'Cancel query should acknowledge the request');
     }
 
-    public function testUploadCsv(): void
+    public function testUpsertCsv(): void
     {
         $csv = "id,name,email\n1,Alice,alice@example.com\n2,Bob,bob@example.com\n";
 
         $this->expectException(\Altertable\Lakehouse\Exceptions\BadRequestError::class);
-        self::$client->upload(
+        self::$client->upsert(
             'test',
             'public',
             'upload_test',
             $csv,
-            UploadMode::Create,
+            UpsertMode::Create,
             contentType: 'text/csv',
         );
     }
@@ -181,10 +179,10 @@ final class LakehouseClientIntegrationTest extends TestCase
             'test',
             'public',
             'batch_test',
-            AppendRequest::batch(
-                new AppendPayload(['id' => 1, 'val' => 'a']),
-                new AppendPayload(['id' => 2, 'val' => 'b']),
-            ),
+            [
+                ['id' => 1, 'val' => 'a'],
+                ['id' => 2, 'val' => 'b'],
+            ],
         );
 
         self::assertFalse($response->ok);
