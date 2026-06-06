@@ -18,6 +18,7 @@ use Altertable\Lakehouse\Models\UploadMode;
 use Altertable\Lakehouse\Models\ValidateRequest;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 
@@ -222,19 +223,6 @@ final class LakehouseClientTest extends TestCase
 
     private function createStream(string $content): StreamInterface
     {
-        $stream = $this->createMock(StreamInterface::class);
-
-        $eofValues = array_fill(0, strlen($content), false);
-        $eofValues[] = true;
-        $stream->method('eof')->willReturnOnConsecutiveCalls(...$eofValues);
-
-        $offset = 0;
-        $stream->method('read')->willReturnCallback(function (int $length) use ($content, &$offset) {
-            $chunk = substr($content, $offset, $length);
-            $offset += $length;
-            return $chunk;
-        });
-
-        return $stream;
+        return Utils::streamFor($content);
     }
 }

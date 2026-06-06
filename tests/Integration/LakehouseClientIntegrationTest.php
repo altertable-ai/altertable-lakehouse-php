@@ -146,8 +146,11 @@ final class LakehouseClientIntegrationTest extends TestCase
     {
         $queryResult = self::$client->queryAll(new QueryRequest(statement: 'SELECT 1'));
         $queryId = $queryResult->metadata->queryId;
+        $sessionId = $queryResult->metadata->sessionId;
 
-        $response = self::$client->cancelQuery($queryId, 'test-session');
+        self::assertNotNull($sessionId);
+
+        $response = self::$client->cancelQuery($queryId, $sessionId);
         self::assertTrue($response->ok || $response->cancelled === true, 'Cancel query should acknowledge the request');
     }
 

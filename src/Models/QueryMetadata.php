@@ -11,6 +11,7 @@ final class QueryMetadata
         public readonly string $status,
         public readonly ?int $totalRows = null,
         public readonly ?float $elapsedMs = null,
+        public readonly ?string $sessionId = null,
     ) {
     }
 
@@ -21,6 +22,7 @@ final class QueryMetadata
             status: (string) ($data['status'] ?? 'unknown'),
             totalRows: $data['total_rows'] ?? $data['row_count'] ?? null,
             elapsedMs: $data['elapsed_ms'] ?? $data['duration_ms'] ?? null,
+            sessionId: isset($data['session_id']) ? (string) $data['session_id'] : null,
         );
     }
 }

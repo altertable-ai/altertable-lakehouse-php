@@ -14,6 +14,7 @@ final class QueryRequest
         public readonly ?ComputeSize $computeSize = null,
         public readonly ?int $maxResults = null,
         public readonly ?int $timeoutSecs = null,
+        public readonly ?string $sessionId = null,
     ) {
     }
 
@@ -37,6 +38,9 @@ final class QueryRequest
         }
         if ($this->timeoutSecs !== null) {
             $result['timeout_secs'] = $this->timeoutSecs;
+        }
+        if ($this->sessionId !== null) {
+            $result['session_id'] = $this->sessionId;
         }
         return $result;
     }

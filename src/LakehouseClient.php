@@ -89,6 +89,7 @@ final class LakehouseClient
         $stream = $response->getBody();
         $metadata = null;
         $columns = [];
+        $firstRow = null;
         $lineIndex = 0;
 
         while (!$stream->eof()) {
@@ -107,9 +108,15 @@ final class LakehouseClient
             }
 
             $type = $parsed['type'] ?? null;
+            $isList = array_is_list($parsed);
 
             if ($type === 'metadata') {
                 $metadata = QueryMetadata::fromArray($parsed['metadata'] ?? $parsed);
+                continue;
+            }
+
+            if ($type === null && array_key_exists('query_id', $parsed)) {
+                $metadata = QueryMetadata::fromArray($parsed);
                 continue;
             }
 
@@ -118,9 +125,18 @@ final class LakehouseClient
                     static fn (array $col) => ColumnSchema::fromArray($col),
                     $parsed['columns'] ?? $parsed['schema'] ?? [],
                 );
-                break;
+                continue;
             }
 
+            if ($type === null && $isList && $this->looksLikeColumnNames($parsed)) {
+                $columns = array_map(
+                    static fn (string $name) => new ColumnSchema($name, 'unknown'),
+                    $parsed,
+                );
+                continue;
+            }
+
+            $firstRow = $parsed;
             break;
         }
 
@@ -128,7 +144,7 @@ final class LakehouseClient
             $metadata = new QueryMetadata(queryId: '', status: 'completed');
         }
 
-        $rows = $this->rowIterator($stream, $lineIndex);
+        $rows = $this->rowIterator($stream, $lineIndex, $firstRow);
 
         return new QueryResult(
             metadata: $metadata,
@@ -448,8 +464,27 @@ final class LakehouseClient
         return $line;
     }
 
-    private function rowIterator(StreamInterface $stream, int &$lineIndex): \Generator
+    private function looksLikeColumnNames(array $data): bool
     {
+        if ($data === []) {
+            return false;
+        }
+
+        foreach ($data as $value) {
+            if (!is_string($value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function rowIterator(StreamInterface $stream, int &$lineIndex, mixed $firstRow = null): \Generator
+    {
+        if ($firstRow !== null) {
+            yield $firstRow;
+        }
+
         while (!$stream->eof()) {
             $line = $this->readLine($stream);
             if ($line === null) {
