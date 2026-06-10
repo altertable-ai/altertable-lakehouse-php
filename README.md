@@ -104,7 +104,6 @@ $response = $client->upsert(
     'my_table',
     $csv,
     UpsertMode::Create,
-    contentType: 'text/csv',
 );
 
 // Upsert with primary key
@@ -115,7 +114,6 @@ $response = $client->upsert(
     '[{"id":1,"name":"Alice"}]',
     UpsertMode::Upsert,
     primaryKey: 'id',
-    contentType: 'application/json',
 );
 ```
 

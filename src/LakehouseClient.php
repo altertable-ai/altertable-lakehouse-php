@@ -203,7 +203,6 @@ final class LakehouseClient
         string|StreamInterface $body,
         UpsertMode $mode,
         ?string $primaryKey = null,
-        string $contentType = 'application/octet-stream',
     ): AppendResponse {
         $query = [
             'catalog' => $catalog,
@@ -220,7 +219,6 @@ final class LakehouseClient
         $response = $this->send('POST', '/upsert', [
             'query' => $query,
             'body' => $body,
-            'headers' => ['Content-Type' => $contentType],
         ], 'upsert');
 
         return AppendResponse::fromArray($this->deserialize($response));

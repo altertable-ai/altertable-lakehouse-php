@@ -130,7 +130,7 @@ final class LakehouseClientTest extends TestCase
             ->method('request')
             ->with('POST', '/upsert', self::callback(function (array $options) use ($body): bool {
                 return $options['body'] === $body
-                    && $options['headers']['Content-Type'] === 'text/csv'
+                    && !array_key_exists('headers', $options)
                     && !array_key_exists('format', $options['query'])
                     && $options['query']['mode'] === 'create';
             }))
@@ -143,7 +143,6 @@ final class LakehouseClientTest extends TestCase
             'tbl',
             $body,
             UpsertMode::Create,
-            contentType: 'text/csv',
         );
 
         self::assertTrue($result->ok);
@@ -168,7 +167,6 @@ final class LakehouseClientTest extends TestCase
             '{}',
             UpsertMode::Upsert,
             primaryKey: 'id',
-            contentType: 'application/json',
         );
     }
 
