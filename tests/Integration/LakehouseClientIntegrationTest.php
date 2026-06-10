@@ -163,7 +163,6 @@ final class LakehouseClientIntegrationTest extends TestCase
             'upload_test',
             $csv,
             UpsertMode::Create,
-            contentType: 'text/csv',
         );
     }
 
