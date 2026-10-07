@@ -59,7 +59,8 @@ $response = $client->append('my_catalog', 'my_schema', 'my_table', [
 
 ```php
 $result = $client->query(new QueryRequest(
-    statement: 'SELECT * FROM my_catalog.my_schema.my_table LIMIT 100',
+    statement: 'SELECT * FROM my_catalog.my_schema.my_table WHERE age >= $min_age',
+    params: ['min_age' => 25],
 ));
 
 echo $result->metadata->queryId . "\n";

@@ -15,6 +15,8 @@ final class QueryRequest
         public readonly ?int $maxResults = null,
         public readonly ?int $timeoutSecs = null,
         public readonly ?string $sessionId = null,
+        /** @var array<string, scalar|null>|list<scalar|null>|null */
+        public readonly ?array $params = null,
     ) {
     }
 
@@ -41,6 +43,9 @@ final class QueryRequest
         }
         if ($this->sessionId !== null) {
             $result['session_id'] = $this->sessionId;
+        }
+        if ($this->params !== null) {
+            $result['params'] = $this->params;
         }
         return $result;
     }

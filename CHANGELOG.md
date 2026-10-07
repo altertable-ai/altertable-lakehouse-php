@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add named and positional query bind values through `QueryRequest::$params`.
+
 ## 0.1.0 (2026-05-14)
 
 - Initial PHP client library for the Altertable Lakehouse API
