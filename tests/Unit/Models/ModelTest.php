@@ -57,6 +57,7 @@ final class ModelTest extends TestCase
             catalog: 'my_catalog',
             computeSize: ComputeSize::M,
             maxResults: 100,
+            params: ['min_age' => 25],
         );
 
         $arr = $request->toArray();
@@ -64,6 +65,10 @@ final class ModelTest extends TestCase
         self::assertSame('my_catalog', $arr['catalog']);
         self::assertSame('M', $arr['compute_size']);
         self::assertSame(100, $arr['max_results']);
+        self::assertSame(['min_age' => 25], $arr['params']);
+
+        $positional = new QueryRequest(statement: 'SELECT $1', params: [25]);
+        self::assertSame([25], $positional->toArray()['params']);
     }
 
     public function testQueryMetadataFromArray(): void
